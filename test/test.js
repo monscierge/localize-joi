@@ -1,9 +1,13 @@
 /**
  * Created by jonathanslominski on 10/25/16.
  */
-const localize = require('../index');
+var config = {
+  translationProvider: 'google',
+  apiKey: 'AIzaSyAvHprYyzBs6KoJ0XAAmpWEnsEfi2RfRDA'
+};
+const Localize = require('../index');
+var localize = new Localize(config);
 const Joi = require('joi');
-const googleApiKey = 'AIzaSyAvHprYyzBs6KoJ0XAAmpWEnsEfi2RfRDA';
 
 var schema = Joi.object().keys({
    ref_id: Joi.string().guid(),
@@ -20,16 +24,6 @@ var schema = Joi.object().keys({
            percent: Joi.number().precision(2).min(0.00).max(100.00),
            partyMin: Joi.number().min(0)
        }).meta({ className: "GratuityModel"}),
-       localization: Joi.object().keys({
-         language: Joi.object().keys({ translate: Joi.boolean().required(), is_machine_translated: Joi.boolean().required(), is_dirty: Joi.boolean().required(), value: Joi.string().required() }).tags(['localizedString']),
-         locale: Joi.object().keys({ translate: Joi.boolean().required(), is_machine_translated: Joi.boolean().required(), is_dirty: Joi.boolean().required(), value: Joi.string().required() }).tags(['localizedString'])
-       }).meta({ className: "LocalizationModel"}),
-       nested: Joi.object().keys({
-         nested: Joi.object().keys({
-         nested_language: Joi.object().keys({ translate: Joi.boolean().required(), is_machine_translated: Joi.boolean().required(), is_dirty: Joi.boolean().required(), value: Joi.string().required() }).tags(['localizedString']),
-         nested_locale: Joi.object().keys({ translate: Joi.boolean().required(), is_machine_translated: Joi.boolean().required(), is_dirty: Joi.boolean().required(), value: Joi.string().required() }).tags(['localizedString'])
-        })
-       }),
        ordinal: Joi.number().integer().min(0),
    }).required().meta({ className: "MenuModel"}),
    created_on: Joi.date().timestamp(),
@@ -63,23 +57,16 @@ var testModel = {
         percent: 18,
         partyMin: 6
       },
-      localization: {
-        language: { translate: true, value: 'hello', is_dirty: false, is_machine_translated: true },
-        locale: { translate: true, value: 'goodbye', is_dirty: false, is_machine_translated: true }
-      },
-      nested: {
-        nested: {
-          nested_language: { translate: true, value: 'hello', is_dirty: false, is_machine_translated: true },
-          nested_locale: { translate: true, value: 'goodbye', is_dirty: false, is_machine_translated: true }
-        }
-      },
       ordinal: 0
     },
     created_on: new Date().getTime(),
     updated_on: new Date().getTime()
   };
 
+  var x = JSON.stringify(testModel.menu);
+
 // translate the object using supplied schema
-localize.translate(Joi.reach(schema, 'menu'), testModel.menu, 'google', googleApiKey, 'en', 'es', (err, result) => {
+localize.translate(Joi.reach(schema, 'menu'), testModel.menu, 'en', 'zh-CN', (err, result) => {
   console.log(testModel);
 });
+

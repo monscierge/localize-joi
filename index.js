@@ -3,23 +3,28 @@
  */
 const Joi = require('joi');
 const _ = require('lodash');
+var translationProvider;
+var apiKey;
 
-var exports = module.exports = {};
+function Localize(config) {
+  translationProvider = config.translationProvider;
+  apiKey = config.apiKey;
+}
 
-function translate(schema, object, translator, apiKey, sourceLanguage, targetLanguage, next) {
+Localize.prototype.translate = function translate(schema, object, sourceLanguage, targetLanguage, next) {
 
-  Joi.validate(object, schema, function(err, result) {
+  Joi.validate(object, schema, function (err, result) {
 
     if (err === null) {
 
       var clonedSchema = _.cloneDeep(schema)
 
-      stripSchema(clonedSchema, function(err, hasChildren) {
+      stripSchema(clonedSchema, function (err, hasChildren) {
 
-        Joi.validate(object, clonedSchema, function(err, result) {
+        Joi.validate(object, clonedSchema, function (err, result) {
 
           if (err === null) {
-            translateObject(result, translator, apiKey, sourceLanguage, targetLanguage, function (err, obj) {
+            translateObject(result, translationProvider, apiKey, sourceLanguage, targetLanguage, function (err, obj) {
               object = _.merge(object, obj);
               return next(err, object);
             });
@@ -43,14 +48,14 @@ function stripSchema(schema, next) {
 
   var hasLocalizedChildren = false;
 
-  _.each(schema._inner.children, function(childProperty) {
+  _.each(schema._inner.children, function (childProperty) {
 
-    if (_.indexOf(childProperty.schema._tags, 'localizedString') > -1  && _.difference(_.map(childProperty.schema._inner.children, 'key'), ['translate', 'is_machine_translated', 'value', 'is_dirty']).length == 0) {
+    if (_.indexOf(childProperty.schema._tags, 'localizedString') > -1 && _.difference(_.map(childProperty.schema._inner.children, 'key'), ['translate', 'is_machine_translated', 'value', 'is_dirty']).length == 0) {
       console.log(`keep ${childProperty.key}!`)
       hasLocalizedChildren = true;
     } else {
 
-      stripSchema(childProperty.schema, function(err, hasChildren) {
+      stripSchema(childProperty.schema, function (err, hasChildren) {
 
         if (hasChildren === true) {
           console.log(`keep ${childProperty.key}!`)
@@ -114,7 +119,7 @@ function translateObject(obj, translator, apiKey, sourceLanguage, targetLanguage
         }
 
       } else {
-        translateObject(obj[k], translator, apiKey, sourceLanguage, targetLanguage, function(err, result) {
+        translateObject(obj[k], translator, apiKey, sourceLanguage, targetLanguage, function (err, result) {
 
           obj[k] = result;
           resolve();
@@ -135,4 +140,4 @@ function translateObject(obj, translator, apiKey, sourceLanguage, targetLanguage
 
 }
 
-exports.translate = translate;
+module.exports = Localize;
