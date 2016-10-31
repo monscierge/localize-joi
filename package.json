@@ -5,5 +5,13 @@
     "google-translate": "^1.0.6",
     "joi": "^9.2.0",
     "lodash": "^4.16.4"
+  },
+  "devDependencies": {
+    "code": "^4.0.0",
+    "lab": "^11.1.0",
+    "proxyquire": "^1.7.10"
+  },
+  "scripts": {
+    "test": "lab -t 95 -r html -o coverage.html"
   }
 }

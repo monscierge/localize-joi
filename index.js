@@ -23,14 +23,14 @@ Localize.prototype.translate = function translate(schema, object, sourceLanguage
 
         Joi.validate(object, clonedSchema, function (err, result) {
 
-          if (err === null) {
+          //if (err === null) {
             translateObject(result, translationProvider, apiKey, sourceLanguage, targetLanguage, function (err, obj) {
               object = _.merge(object, obj);
               return next(err, object);
             });
-          } else {
-            return next(err, object);
-          }
+          // } else {
+          //   return next(err, object);
+          // }
 
         });
 
