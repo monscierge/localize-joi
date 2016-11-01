@@ -8,11 +8,23 @@ const translationProviders = require('./translationProviders');
 var translationProvider;
 var apiKey;
 
+/**
+ * Constructor for Localize-Joi
+ * @param config - contains translationProvider (i.e. 'google') and apiKey properties
+ * @constructor
+ */
 function Localize(config) {
   translationProvider = config.translationProvider;
   apiKey = config.apiKey;
 }
 
+/**
+ * Exported function - translates provided JSON to target language using provided Joi schema
+ * @param schema - Joi schema describing JSON object
+ * @param object - JSON object to be translated
+ * @param targetLanguage - string defining target language i.e. 'fr'
+ * @param next - callback
+ */
 Localize.prototype.translate = function translate(schema, object, targetLanguage, next) {
 
   Joi.validate(object, schema, function (err, result) {
@@ -42,6 +54,12 @@ Localize.prototype.translate = function translate(schema, object, targetLanguage
 
 }
 
+/**
+ * Pares down the provided schema into a schema that only includes localizableString objects
+ * @param schema - Joi schema to strip down
+ * @param next - callback
+ * @returns boolean indicating whether the schema contains localizableString children (for recursion)
+ */
 function stripSchema(schema, next) {
 
   var hasLocalizedChildren = false;
@@ -49,17 +67,17 @@ function stripSchema(schema, next) {
   _.each(schema._inner.children, function (childProperty) {
 
     if (_.indexOf(childProperty.schema._tags, 'localizedString') > -1 && _.difference(_.map(childProperty.schema._inner.children, 'key'), ['language', 'translate', 'is_machine_translated', 'value', 'is_dirty']).length == 0) {
-      console.log(`keep ${childProperty.key}!`);
+      //console.log(`keep ${childProperty.key}!`);
       hasLocalizedChildren = true;
     } else {
 
       stripSchema(childProperty.schema, function (err, hasChildren) {
 
         if (hasChildren === true) {
-          console.log(`keep ${childProperty.key}!`);
+          //console.log(`keep ${childProperty.key}!`);
           hasLocalizedChildren = true;
         } else {
-          console.log(`strip ${childProperty.key}!`);
+          //console.log(`strip ${childProperty.key}!`);
           childProperty['schema']['_flags']['strip'] = true;
         }
       });
@@ -70,6 +88,14 @@ function stripSchema(schema, next) {
   return next(null, hasLocalizedChildren);
 }
 
+/**
+ * Calls the translation service to translate into target language
+ * @param obj - text to translate
+ * @param translator - string defining provider i.e. 'google'
+ * @param apiKey - api key of translation provider service
+ * @param targetLanguage - string defining target language i.e. 'fr'
+ * @param next - callback
+ */
 function translateObject(obj, translator, apiKey, targetLanguage, next) {
 
   var errors = [];
@@ -146,7 +172,6 @@ function translateObject(obj, translator, apiKey, targetLanguage, next) {
     } else {
       return next(null, obj);
     }
-
 
   });
 
