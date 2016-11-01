@@ -3,6 +3,8 @@
  */
 const Joi = require('joi');
 const _ = require('lodash');
+const translationProviders = require('./translationProviders');
+
 var translationProvider;
 var apiKey;
 
@@ -11,7 +13,7 @@ function Localize(config) {
   apiKey = config.apiKey;
 }
 
-Localize.prototype.translate = function translate(schema, object, sourceLanguage, targetLanguage, next) {
+Localize.prototype.translate = function translate(schema, object, targetLanguage, next) {
 
   Joi.validate(object, schema, function (err, result) {
 
@@ -23,14 +25,10 @@ Localize.prototype.translate = function translate(schema, object, sourceLanguage
 
         Joi.validate(object, clonedSchema, function (err, result) {
 
-          //if (err === null) {
-            translateObject(result, translationProvider, apiKey, sourceLanguage, targetLanguage, function (err, obj) {
-              object = _.merge(object, obj);
-              return next(err, object);
-            });
-          // } else {
-          //   return next(err, object);
-          // }
+          translateObject(result, translationProvider, apiKey, targetLanguage, function (err, obj) {
+            object = _.merge(object, obj);
+            return next(err, object);
+          });
 
         });
 
@@ -50,18 +48,18 @@ function stripSchema(schema, next) {
 
   _.each(schema._inner.children, function (childProperty) {
 
-    if (_.indexOf(childProperty.schema._tags, 'localizedString') > -1 && _.difference(_.map(childProperty.schema._inner.children, 'key'), ['translate', 'is_machine_translated', 'value', 'is_dirty']).length == 0) {
-      console.log(`keep ${childProperty.key}!`)
+    if (_.indexOf(childProperty.schema._tags, 'localizedString') > -1 && _.difference(_.map(childProperty.schema._inner.children, 'key'), ['language', 'translate', 'is_machine_translated', 'value', 'is_dirty']).length == 0) {
+      console.log(`keep ${childProperty.key}!`);
       hasLocalizedChildren = true;
     } else {
 
       stripSchema(childProperty.schema, function (err, hasChildren) {
 
         if (hasChildren === true) {
-          console.log(`keep ${childProperty.key}!`)
+          console.log(`keep ${childProperty.key}!`);
           hasLocalizedChildren = true;
         } else {
-          console.log(`strip ${childProperty.key}!`)
+          console.log(`strip ${childProperty.key}!`);
           childProperty['schema']['_flags']['strip'] = true;
         }
       });
@@ -72,26 +70,30 @@ function stripSchema(schema, next) {
   return next(null, hasLocalizedChildren);
 }
 
-function translateObject(obj, translator, apiKey, sourceLanguage, targetLanguage, next) {
+function translateObject(obj, translator, apiKey, targetLanguage, next) {
 
+  var errors = [];
   var requests = _.keys(obj).map((k) => {
 
     return new Promise((resolve) => {
 
-      if (_.indexOf(_.keys(obj[k]), 'is_dirty') > -1 && _.indexOf(_.keys(obj[k]), 'value') > -1 && _.indexOf(_.keys(obj[k]), 'is_machine_translated') > -1 && _.indexOf(_.keys(obj[k]), 'translate') > -1) {
+      var diff = _.difference(_.keys(obj[k]), ['language', 'translate', 'is_machine_translated', 'value', 'is_dirty']);
+
+      if (diff.length == 0) {
 
         if (obj[k].translate === true && obj[k].is_machine_translated === true) {
 
           if (translator.toLowerCase() === 'google') {
 
-            var googleTranslate = require('google-translate')(apiKey);
+            if (!obj[k].language || obj[k].language === null) {
 
-            if (!sourceLanguage || sourceLanguage === null) {
-
-              googleTranslate.translate(obj[k].value, targetLanguage, function (err, translation) {
+              translationProviders.googleTranslateWithoutSource(apiKey, obj[k].value, targetLanguage, function (err, translation) {
 
                 if (err === null) {
                   obj[k].value = translation.translatedText;
+                } else {
+                  obj[k].value = obj[k].value;
+                  errors.push(err);
                 }
 
                 resolve();
@@ -99,10 +101,13 @@ function translateObject(obj, translator, apiKey, sourceLanguage, targetLanguage
 
             } else {
 
-              googleTranslate.translate(obj[k].value, sourceLanguage, targetLanguage, function (err, translation) {
+              translationProviders.googleTranslateWithSource(apiKey, obj[k].value, obj[k].language, targetLanguage, function (err, translation) {
 
                 if (err === null) {
                   obj[k].value = translation.translatedText;
+                } else {
+                  obj[k].value = obj[k].value;
+                  errors.push(err);
                 }
 
                 resolve();
@@ -119,7 +124,7 @@ function translateObject(obj, translator, apiKey, sourceLanguage, targetLanguage
         }
 
       } else {
-        translateObject(obj[k], translator, apiKey, sourceLanguage, targetLanguage, function (err, result) {
+        translateObject(obj[k], translator, apiKey, targetLanguage, function (err, result) {
 
           obj[k] = result;
           resolve();
@@ -134,7 +139,12 @@ function translateObject(obj, translator, apiKey, sourceLanguage, targetLanguage
 
   Promise.all(requests).then(function () {
 
-    return next(null, obj);
+    if (errors.length > 0) {
+      return next(errors, obj);
+    } else {
+      return next(null, obj);
+    }
+
 
   });
 

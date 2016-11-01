@@ -3,14 +3,18 @@
  */
 var config = {
   translationProvider: 'google',
-  apiKey: 'AIzaSyAvHprYyzBs6KoJ0XAAmpWEnsEfi2RfRDA'
+  apiKey: 'garbageKey'
 };
-const Localize = require('../index');
+const proxyquire = require('proxyquire');
+var providerStub = {};
+var Localize = proxyquire('../index', {'./translationProviders': providerStub } );
 var localize = new Localize(config);
 const Joi = require('joi');
 const Lab = require('lab');
 const Code = require('code');
 const lab = exports.lab = Lab.script();
+const translationProviders = require('../translationProviders');
+const _ = require('lodash');
 
 var schema = Joi.object().keys({
    id: Joi.string().guid(),
@@ -19,28 +23,32 @@ var schema = Joi.object().keys({
          translate: Joi.boolean().required(),
          is_machine_translated: Joi.boolean().required(),
          is_dirty: Joi.boolean().required(),
-         value: Joi.string().required()
+         value: Joi.string().required(),
+         language: Joi.string().allow(null).required()
        }).tags(['localizedString']).required(),
        nested: Joi.object().keys({
          nested_name: Joi.object().keys({
            translate: Joi.boolean().required(),
            is_machine_translated: Joi.boolean().required(),
            is_dirty: Joi.boolean().required(),
-           value: Joi.string().required()
+           value: Joi.string().required(),
+           language: Joi.string().allow(null).required()
         }).tags(['localizedString']).required(),
        }),
        description: Joi.object().keys({
          translate: Joi.boolean().required(),
          is_machine_translated: Joi.boolean().required(),
          is_dirty: Joi.boolean().required(),
-         value: Joi.string().required()
+         value: Joi.string().required(),
+         language: Joi.string().allow(null).required()
        }).tags(['localizedString']),
        is_active: Joi.boolean(),
        message: Joi.object().keys({
          translate: Joi.boolean().required(),
          is_machine_translated: Joi.boolean().required(),
          is_dirty: Joi.boolean().required(),
-         value: Joi.string().required()
+         value: Joi.string().required(),
+         language: Joi.string().allow(null).required()
        }).tags(['localizedString']),
        images: Joi.array().items(Joi.string().guid()),
        ordinal: Joi.number().integer().min(0),
@@ -56,28 +64,32 @@ var testModel = {
         translate: false,
         value: 'testing model name',
         is_dirty: false,
-        is_machine_translated: true
+        is_machine_translated: true,
+        language: 'en'
       },
       nested: {
         nested_name: {
-          translate: false,
+          translate: true,
           value: 'testing model nested name',
           is_dirty: false,
-          is_machine_translated: true
+          is_machine_translated: true,
+          language: 'en'
         }
       },
       description: {
         translate: true,
         value: 'this is a description of the testing model',
         is_dirty: false,
-        is_machine_translated: true
+        is_machine_translated: true,
+        language: null
       },
       is_active: true,
       message: {
         translate: true,
         value: 'this is the message of the testing model',
         is_dirty: false,
-        is_machine_translated: true
+        is_machine_translated: false,
+        language: 'en'
       },
       images: [
         '1892d407-28db-4c91-ad5b-bd2c596a201d',
@@ -90,14 +102,45 @@ var testModel = {
     updated_on: new Date().getTime()
   };
 
+
+providerStub.googleTranslateWithoutSource = (apiKey, text, targetLanguage, next) => {
+  return next(null, {translatedText: 'translatedWithoutSource', originalText: text, detectedSourceLanguage: 'en'});
+};
+
+providerStub.googleTranslateWithSource = (apiKey, text, sourceLanguage, targetLanguage, next) => {
+  return next(null, {translatedText: 'translatedWithSource', originalText: text});
+};
+
 lab.experiment('Localize Joi Tests', () => {
+
+  lab.test(`google translation provider - with source`, (done) => {
+
+    translationProviders.googleTranslateWithSource(config.apiKey, 'hello', 'en', 'de', function(err, result) {
+      Code.expect(err).to.not.be.null();
+      done();
+    });
+
+  });
+
+  lab.test(`google translation provider - without source`, (done) => {
+
+    translationProviders.googleTranslateWithoutSource(config.apiKey, 'hello', 'de', function(err, result) {
+      Code.expect(err).to.not.be.null();
+      done();
+    });
+
+  });
 
   lab.test(`translate`, (done) => {
 
     // translate the object using supplied schema
-    localize.translate(Joi.reach(schema, 'data'), testModel.data, 'en', 'zh-CN', (err, result) => {
-      console.error(err);
-      console.log(testModel);
+    localize.translate(Joi.reach(schema, 'data'), _.cloneDeep(testModel.data), 'zh-CN', (err, result) => {
+
+      Code.expect(err).to.be.null();
+      Code.expect(result.name.value).to.be.equal('testing model name');
+      Code.expect(result.nested.nested_name.value).to.be.equal('translatedWithSource');
+      Code.expect(result.description.value).to.be.equal('translatedWithoutSource');
+      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
       done();
 
     });
@@ -107,28 +150,20 @@ lab.experiment('Localize Joi Tests', () => {
   lab.test(`bad schema`, (done) => {
 
     // translate the object using supplied schema
-    localize.translate(null, testModel.data, 'en', 'zh-CN', (err, result) => {
-      console.error(err);
-      console.log(testModel);
+    localize.translate(null, _.cloneDeep(testModel.data), 'zh-CN', (err, result) => {
+
+      Code.expect(err).to.not.be.null();
+      Code.expect(result.name.value).to.be.equal('testing model name');
+      Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
+      Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
+      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
       done();
 
     });
 
   });
 
-  lab.test(`no source language`, (done) => {
-
-    // translate the object using supplied schema
-    localize.translate(Joi.reach(schema, 'data'), testModel.data, null, 'zh-CN', (err, result) => {
-      console.error(err);
-      console.log(testModel);
-      done();
-
-    });
-
-  });
-
-  lab.test(`no source language`, (done) => {
+  lab.test(`unsupported translation provider`, (done) => {
 
     var testConfig = {
       translationProvider: 'bing'
@@ -136,9 +171,37 @@ lab.experiment('Localize Joi Tests', () => {
     var testLocalize = new Localize(testConfig);
 
     // translate the object using supplied schema
-    testLocalize.translate(Joi.reach(schema, 'data'), testModel.data, 'en', 'zh-CN', (err, result) => {
+    testLocalize.translate(Joi.reach(schema, 'data'), testModel.data, 'zh-CN', (err, result) => {
       console.error(err);
       console.log(testModel);
+      done();
+
+    });
+
+  });
+
+  lab.test(`google errors`, (done) => {
+
+    var errorProviderStub = {};
+    var ErrorLocalize = proxyquire('../index', {'./translationProviders': errorProviderStub } );
+    var errorLocalize = new ErrorLocalize(config);
+
+    errorProviderStub.googleTranslateWithoutSource = (apiKey, text, targetLanguage, next) => {
+      return next('Fake error', null);
+    };
+
+    errorProviderStub.googleTranslateWithSource = (apiKey, text, sourceLanguage, targetLanguage, next) => {
+      return next('Fake error', null);
+    };
+
+    // translate the object using supplied schema
+    errorLocalize.translate(Joi.reach(schema, 'data'), _.cloneDeep(testModel.data), 'zh-CN', (err, result) => {
+
+      Code.expect(err).to.not.be.null();
+      Code.expect(result.name.value).to.be.equal('testing model name');
+      Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
+      Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
+      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
       done();
 
     });
