@@ -91,6 +91,7 @@ function translateObject(obj, translator, apiKey, targetLanguage, next) {
 
                 if (err === null) {
                   obj[k].value = translation.translatedText;
+                  obj[k].language = targetLanguage;
                 } else {
                   obj[k].value = obj[k].value;
                   errors.push(err);
@@ -105,6 +106,7 @@ function translateObject(obj, translator, apiKey, targetLanguage, next) {
 
                 if (err === null) {
                   obj[k].value = translation.translatedText;
+                  obj[k].language = targetLanguage;
                 } else {
                   obj[k].value = obj[k].value;
                   errors.push(err);
