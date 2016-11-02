@@ -29,8 +29,11 @@ var config = {
 ```
 
 ## Initialize instance
+
+```javascript
 var Localize = require('localize-joi');
 var localize = new Localize(config);
+```
 
 ## Run translation
 
