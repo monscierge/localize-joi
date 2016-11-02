@@ -1,9 +1,9 @@
 {
   "name": "localize-joi",
-  "version": "1.0.1",
-  "repository" :
-  { "type" : "git",
-    "url" : "https://github.com/monscierge/localize-joi.git"
+  "version": "1.0.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monscierge/localize-joi.git"
   },
   "dependencies": {
     "google-translate": "^1.0.6",
