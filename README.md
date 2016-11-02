@@ -5,6 +5,8 @@
 * translate, is_machine_translated, is_dirty, value, and language are all required properties
 * localizedString is a required tag in order for translation to occur
 
+```javascript
+...
 name: Joi.object().keys({
          translate: Joi.boolean().required(),
          is_machine_translated: Joi.boolean().required(),
@@ -12,23 +14,30 @@ name: Joi.object().keys({
          value: Joi.string().required(),
          language: Joi.string().allow(null).required()
        }).tags(['localizedString'])
+...
+```
 
 ## Provide configuration
 
 (only Google Translate API is supported at this time)
 
+```javascript
 var config = {
   translationProvider: 'google',
   apiKey: 'yourGoogleApiKey'
 };
+```
 
 ## Initialize instance
 var Localize = require('localize-joi');
 var localize = new Localize(config);
 
 ## Run translation
+
+```javascript
 localize.translate(joiSchema, jsonObject, 'zh-CN', (err, result) => {
 
   // do something here
 
 });
+```
