@@ -1,6 +1,6 @@
 {
   "name": "localize-joi",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "dependencies": {
     "google-translate": "^1.0.6",
     "joi": "^9.2.0",
@@ -12,6 +12,6 @@
     "proxyquire": "^1.7.10"
   },
   "scripts": {
-    "test": "lab -t 95 -r html -o coverage.html"
+    "test": "lab -t 100 -r html -o coverage.html"
   }
 }
