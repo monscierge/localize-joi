@@ -145,7 +145,7 @@ var jsonObject = {
 
 localize.translate(joiSchema, jsonObject, 'zh-CN', (err, result) => {
 
-  console.log(result) =>
+  console.log(result);
   // =>
   //  { name:
   //   { translate: false,
