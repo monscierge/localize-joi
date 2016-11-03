@@ -1,5 +1,7 @@
 # localize-joi
 
+> Translate your JSON using joi!
+
 ## Add localizable string objects in your joi schema:
 
 * translate, is_machine_translated, is_dirty, value, and language are all required properties
