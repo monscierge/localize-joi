@@ -172,8 +172,12 @@ lab.experiment('Localize Joi Tests', () => {
 
     // translate the object using supplied schema
     testLocalize.translate(Joi.reach(schema, 'data'), testModel.data, 'zh-CN', (err, result) => {
-      console.error(err);
-      console.log(testModel);
+
+      Code.expect(err).to.be.null();
+      Code.expect(result.name.value).to.be.equal('testing model name');
+      Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
+      Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
+      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
       done();
 
     });

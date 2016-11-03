@@ -16,6 +16,6 @@
     "proxyquire": "^1.7.10"
   },
   "scripts": {
-    "test": "lab -t 100 -r html -o coverage.html"
+    "test": "lab -t 100 -m 10000 -r html -o coverage.html"
   }
 }
