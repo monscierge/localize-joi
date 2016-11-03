@@ -1,6 +1,22 @@
 {
   "name": "localize-joi",
   "version": "1.0.3",
+  "keywords": [
+    "localize-joi",
+    "joi",
+    "localize",
+    "monscierge",
+    "localization",
+    "translate",
+    "translation",
+    "json"
+  ],
+  "bugs": {
+    "url": "https://github.com/monscierge/localize-joi/issues"
+  },
+  "author": {
+    "name": "Jonathan Slominski"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/monscierge/localize-joi.git"
