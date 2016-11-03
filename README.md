@@ -2,6 +2,13 @@
 
 > Translate your JSON using joi
 
+
+###Build Status - Master
+[ ![Codeship Status for monscierge/cms](https://codeship.com/projects/96ff1310-840a-0134-7db7-320d848032e5/status?branch=master)](https://codeship.com/projects/170446)
+
+###Build Status - Develop
+[ ![Codeship Status for monscierge/cms](https://codeship.com/projects/96ff1310-840a-0134-7db7-320d848032e5/status?branch=develop)](https://codeship.com/projects/170446)
+
 ## Add localizable string objects in your joi schema:
 
 * translate, is_machine_translated, is_dirty, value, and language are all required properties
