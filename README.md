@@ -16,6 +16,16 @@ name: Joi.object().keys({
        }).tags(['localizedString'])
 ...
 ```
+### translate 
+a boolean indicating whether the localizableString should be translated
+### is_machine_translated
+a boolean indicated whether the localizableString should be translated by the translationProvider (i.e. Google)
+### is_dirty
+a boolean flag indicating whether the text has been changed since last translation
+### value
+string value to be translated
+### language
+source language (i.e. 'en') of the text to translate
 
 ## Provide configuration
 
