@@ -102,6 +102,83 @@ var testModel = {
     updated_on: new Date().getTime()
   };
 
+var dirtyTestModel = {
+    id: '97170e81-8b55-4cad-8748-5a94658b91d6',
+    data: {
+      name: {
+        translate: false,
+        value: 'dirty testing model name',
+        is_dirty: true,
+        is_machine_translated: true,
+        language: 'en'
+      },
+      nested: {
+        nested_name: {
+          translate: true,
+          value: 'dirty testing model nested name',
+          is_dirty: true,
+          is_machine_translated: true,
+          language: 'en'
+        }
+      },
+      description: {
+        translate: true,
+        value: 'dirty this is a description of the testing model',
+        is_dirty: true,
+        is_machine_translated: true,
+        language: 'en'
+      },
+      is_active: true,
+      message: {
+        translate: true,
+        value: 'dirty this is the message of the testing model',
+        is_dirty: true,
+        is_machine_translated: false,
+        language: 'en'
+      },
+      images: [
+        '1892d407-28db-4c91-ad5b-bd2c596a201d',
+        'edc9593f-6441-4e0d-94c3-c1b4ccd7d25d',
+        'cdcd0518-86ba-45e8-a7d2-675867cab29a'
+      ],
+      ordinal: 0
+    },
+    created_on: new Date().getTime(),
+    updated_on: new Date().getTime()
+  };
+
+var translationModel = {
+    name: {
+      translate: false,
+      value: 'translated testing model name',
+      is_dirty: false,
+      is_machine_translated: true,
+      language: 'en'
+    },
+    nested: {
+      nested_name: {
+        translate: true,
+        value: 'translated testing model nested name',
+        is_dirty: false,
+        is_machine_translated: true,
+        language: 'en'
+      }
+    },
+    description: {
+      translate: true,
+      value: 'translated this is a description of the testing model',
+      is_dirty: false,
+      is_machine_translated: true,
+      language: null
+    },
+    message: {
+      translate: true,
+      value: 'translated this is the message of the testing model',
+      is_dirty: false,
+      is_machine_translated: false,
+      language: 'en'
+    }
+  };
 
 providerStub.googleTranslateWithoutSource = (apiKey, text, targetLanguage, next) => {
   return next(null, {translatedText: 'translatedWithoutSource', originalText: text, detectedSourceLanguage: 'en'});
@@ -147,6 +224,22 @@ lab.experiment('Localize Joi Tests', () => {
 
   });
 
+  lab.test(`translate dirty object`, (done) => {
+
+    // translate the object using supplied schema
+    localize.updateTranslation(Joi.reach(schema, 'data'), _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
+
+      Code.expect(err).to.be.null();
+      Code.expect(result.name.value).to.be.equal('translated testing model name');
+      Code.expect(result.nested.nested_name.value).to.be.equal('translatedWithSource');
+      Code.expect(result.description.value).to.be.equal('translatedWithSource');
+      Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+      done();
+
+    });
+
+  });
+
   lab.test(`bad schema`, (done) => {
 
     // translate the object using supplied schema
@@ -157,7 +250,17 @@ lab.experiment('Localize Joi Tests', () => {
       Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
       Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
       Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
-      done();
+
+      localize.updateTranslation(null, _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
+
+        Code.expect(err).to.not.be.null();
+        Code.expect(result.name.value).to.be.equal('translated testing model name');
+        Code.expect(result.nested.nested_name.value).to.be.equal('translated testing model nested name');
+        Code.expect(result.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+        done();
+
+      });
 
     });
 
@@ -178,7 +281,17 @@ lab.experiment('Localize Joi Tests', () => {
       Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
       Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
       Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
-      done();
+
+      testLocalize.updateTranslation(Joi.reach(schema, 'data'), _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
+
+        Code.expect(err).to.be.null();
+        Code.expect(result.name.value).to.be.equal('translated testing model name');
+        Code.expect(result.nested.nested_name.value).to.be.equal('translated testing model nested name');
+        Code.expect(result.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+        done();
+
+      });
 
     });
 
@@ -206,7 +319,17 @@ lab.experiment('Localize Joi Tests', () => {
       Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
       Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
       Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
-      done();
+
+      errorLocalize.updateTranslation(Joi.reach(schema, 'data'), _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
+
+        Code.expect(err).to.not.be.null();
+        Code.expect(result.name.value).to.be.equal('translated testing model name');
+        Code.expect(result.nested.nested_name.value).to.be.equal('translated testing model nested name');
+        Code.expect(result.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+        done();
+
+      });
 
     });
 
