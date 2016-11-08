@@ -126,7 +126,7 @@ var dirtyTestModel = {
         value: 'dirty this is a description of the testing model',
         is_dirty: true,
         is_machine_translated: true,
-        language: 'en'
+        language: null
       },
       is_active: true,
       message: {
@@ -232,7 +232,7 @@ lab.experiment('Localize Joi Tests', () => {
       Code.expect(err).to.be.null();
       Code.expect(result.name.value).to.be.equal('translated testing model name');
       Code.expect(result.nested.nested_name.value).to.be.equal('translatedWithSource');
-      Code.expect(result.description.value).to.be.equal('translatedWithSource');
+      Code.expect(result.description.value).to.be.equal('translatedWithoutSource');
       Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
       done();
 
