@@ -214,10 +214,10 @@ lab.experiment('Localize Joi Tests', () => {
     localize.translate(Joi.reach(schema, 'data'), _.cloneDeep(testModel.data), 'zh-CN', (err, result) => {
 
       Code.expect(err).to.be.null();
-      Code.expect(result.name.value).to.be.equal('testing model name');
-      Code.expect(result.nested.nested_name.value).to.be.equal('translatedWithSource');
-      Code.expect(result.description.value).to.be.equal('translatedWithoutSource');
-      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
+      Code.expect(result.translatedObject.name.value).to.be.equal('testing model name');
+      Code.expect(result.translatedObject.nested.nested_name.value).to.be.equal('translatedWithSource');
+      Code.expect(result.translatedObject.description.value).to.be.equal('translatedWithoutSource');
+      Code.expect(result.translatedObject.message.value).to.be.equal('this is the message of the testing model');
       done();
 
     });
@@ -230,10 +230,10 @@ lab.experiment('Localize Joi Tests', () => {
     localize.updateTranslation(Joi.reach(schema, 'data'), _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
 
       Code.expect(err).to.be.null();
-      Code.expect(result.name.value).to.be.equal('translated testing model name');
-      Code.expect(result.nested.nested_name.value).to.be.equal('translatedWithSource');
-      Code.expect(result.description.value).to.be.equal('translatedWithoutSource');
-      Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+      Code.expect(result.strippedObject.name.value).to.be.equal('translated testing model name');
+      Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('translatedWithSource');
+      Code.expect(result.strippedObject.description.value).to.be.equal('translatedWithoutSource');
+      Code.expect(result.strippedObject.message.value).to.be.equal('translated this is the message of the testing model');
       done();
 
     });
@@ -246,18 +246,18 @@ lab.experiment('Localize Joi Tests', () => {
     localize.translate(null, _.cloneDeep(testModel.data), 'zh-CN', (err, result) => {
 
       Code.expect(err).to.not.be.null();
-      Code.expect(result.name.value).to.be.equal('testing model name');
-      Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
-      Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
-      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
+      Code.expect(result.translatedObject.name.value).to.be.equal('testing model name');
+      Code.expect(result.translatedObject.nested.nested_name.value).to.be.equal('testing model nested name');
+      Code.expect(result.translatedObject.description.value).to.be.equal('this is a description of the testing model');
+      Code.expect(result.translatedObject.message.value).to.be.equal('this is the message of the testing model');
 
       localize.updateTranslation(null, _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
 
         Code.expect(err).to.not.be.null();
-        Code.expect(result.name.value).to.be.equal('translated testing model name');
-        Code.expect(result.nested.nested_name.value).to.be.equal('translated testing model nested name');
-        Code.expect(result.description.value).to.be.equal('translated this is a description of the testing model');
-        Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+        Code.expect(result.strippedObject.name.value).to.be.equal('translated testing model name');
+        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('translated testing model nested name');
+        Code.expect(result.strippedObject.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.strippedObject.message.value).to.be.equal('translated this is the message of the testing model');
         done();
 
       });
@@ -277,18 +277,18 @@ lab.experiment('Localize Joi Tests', () => {
     testLocalize.translate(Joi.reach(schema, 'data'), testModel.data, 'zh-CN', (err, result) => {
 
       Code.expect(err).to.be.null();
-      Code.expect(result.name.value).to.be.equal('testing model name');
-      Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
-      Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
-      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
+      Code.expect(result.translatedObject.name.value).to.be.equal('testing model name');
+      Code.expect(result.translatedObject.nested.nested_name.value).to.be.equal('testing model nested name');
+      Code.expect(result.translatedObject.description.value).to.be.equal('this is a description of the testing model');
+      Code.expect(result.translatedObject.message.value).to.be.equal('this is the message of the testing model');
 
       testLocalize.updateTranslation(Joi.reach(schema, 'data'), _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
 
         Code.expect(err).to.be.null();
-        Code.expect(result.name.value).to.be.equal('translated testing model name');
-        Code.expect(result.nested.nested_name.value).to.be.equal('translated testing model nested name');
-        Code.expect(result.description.value).to.be.equal('translated this is a description of the testing model');
-        Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+        Code.expect(result.strippedObject.name.value).to.be.equal('translated testing model name');
+        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('translated testing model nested name');
+        Code.expect(result.strippedObject.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.strippedObject.message.value).to.be.equal('translated this is the message of the testing model');
         done();
 
       });
@@ -315,18 +315,18 @@ lab.experiment('Localize Joi Tests', () => {
     errorLocalize.translate(Joi.reach(schema, 'data'), _.cloneDeep(testModel.data), 'zh-CN', (err, result) => {
 
       Code.expect(err).to.not.be.null();
-      Code.expect(result.name.value).to.be.equal('testing model name');
-      Code.expect(result.nested.nested_name.value).to.be.equal('testing model nested name');
-      Code.expect(result.description.value).to.be.equal('this is a description of the testing model');
-      Code.expect(result.message.value).to.be.equal('this is the message of the testing model');
+      Code.expect(result.translatedObject.name.value).to.be.equal('testing model name');
+      Code.expect(result.translatedObject.nested.nested_name.value).to.be.equal('testing model nested name');
+      Code.expect(result.translatedObject.description.value).to.be.equal('this is a description of the testing model');
+      Code.expect(result.translatedObject.message.value).to.be.equal('this is the message of the testing model');
 
       errorLocalize.updateTranslation(Joi.reach(schema, 'data'), _.cloneDeep(dirtyTestModel.data), _.cloneDeep(translationModel), 'zh-CN', (err, result) => {
 
         Code.expect(err).to.not.be.null();
-        Code.expect(result.name.value).to.be.equal('translated testing model name');
-        Code.expect(result.nested.nested_name.value).to.be.equal('translated testing model nested name');
-        Code.expect(result.description.value).to.be.equal('translated this is a description of the testing model');
-        Code.expect(result.message.value).to.be.equal('translated this is the message of the testing model');
+        Code.expect(result.strippedObject.name.value).to.be.equal('translated testing model name');
+        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('translated testing model nested name');
+        Code.expect(result.strippedObject.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.strippedObject.message.value).to.be.equal('translated this is the message of the testing model');
         done();
 
       });

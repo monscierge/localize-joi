@@ -39,7 +39,7 @@ Localize.prototype.translate = function translate(schema, object, targetLanguage
 
           translateObject(result, translationProvider, apiKey, targetLanguage, function (err, obj) {
             object = _.merge(object, obj);
-            return next(err, object);
+            return next(err, { translatedObject: object, strippedObject: obj });
           });
 
         });
@@ -47,7 +47,7 @@ Localize.prototype.translate = function translate(schema, object, targetLanguage
       });
 
     } else {
-      return next(err, object);
+      return next(err, { translatedObject: object, strippedObject: null });
     }
 
   });
@@ -83,8 +83,8 @@ Localize.prototype.updateTranslation = function updateTranslation(schema, native
             });
 
             updateTranslateObject(translationObject, translationProvider, apiKey, targetLanguage, function (err, obj) {
-              translationObject = _.merge(translationObject, obj);
-              return next(err, translationObject);
+              //translationObject = _.merge(translationObject, obj);
+              return next(err, { strippedObject: obj });
             });
 
         });
@@ -92,7 +92,7 @@ Localize.prototype.updateTranslation = function updateTranslation(schema, native
       });
 
     } else {
-      return next(err, translationObject);
+      return next(err, { strippedObject: translationObject });
     }
 
   });
