@@ -286,8 +286,8 @@ lab.experiment('Localize Joi Tests', () => {
 
         Code.expect(err).to.be.null();
         Code.expect(result.strippedObject.name.value).to.be.equal('translated testing model name');
-        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('translated testing model nested name');
-        Code.expect(result.strippedObject.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('dirty testing model nested name');
+        Code.expect(result.strippedObject.description.value).to.be.equal('dirty this is a description of the testing model');
         Code.expect(result.strippedObject.message.value).to.be.equal('translated this is the message of the testing model');
         done();
 
@@ -324,8 +324,8 @@ lab.experiment('Localize Joi Tests', () => {
 
         Code.expect(err).to.not.be.null();
         Code.expect(result.strippedObject.name.value).to.be.equal('translated testing model name');
-        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('translated testing model nested name');
-        Code.expect(result.strippedObject.description.value).to.be.equal('translated this is a description of the testing model');
+        Code.expect(result.strippedObject.nested.nested_name.value).to.be.equal('dirty testing model nested name');
+        Code.expect(result.strippedObject.description.value).to.be.equal('dirty this is a description of the testing model');
         Code.expect(result.strippedObject.message.value).to.be.equal('translated this is the message of the testing model');
         done();
 

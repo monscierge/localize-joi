@@ -76,7 +76,15 @@ Localize.prototype.updateTranslation = function updateTranslation(schema, native
             translationObject = _.mergeWith(translationObject, nativeResult, function(objValue, srcValue, key) {
 
               if (objValue.is_dirty !== undefined && srcValue.is_dirty != undefined) {
-                return _.assign(objValue, _.omit(srcValue, ['value']));
+                if(srcValue.is_machine_translated === true && srcValue.translate === true) {
+
+                  // need to supply new value from native language
+                  return _.assign(objValue, srcValue);
+                } else {
+
+                  // retain existing translation value if hand-translated or translation is disabled
+                  return _.assign(objValue, _.omit(srcValue, ['value']));
+                }
               } else {
                 return undefined;
               }
