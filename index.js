@@ -107,6 +107,32 @@ Localize.prototype.updateTranslation = function updateTranslation(schema, native
 
 }
 
+Localize.prototype.getStrippedObject = function getStrippedObject(schema, jsonObject, next) {
+
+  Joi.validate(jsonObject, schema, function (err, result) {
+
+    if (err === null) {
+
+      var clonedSchema = _.cloneDeep(schema)
+
+      stripSchema(clonedSchema, function (err, hasChildren) {
+
+        Joi.validate(jsonObject, clonedSchema, function (err, result) {
+
+          return next(err, result);
+
+        });
+
+      });
+
+    } else {
+      return next(err, null);
+    }
+
+  });
+
+}
+
 /**
  * Pares down the provided schema into a schema that only includes localizableString objects
  * @param schema - Joi schema to strip down
