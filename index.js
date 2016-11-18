@@ -4,6 +4,7 @@
 const Joi = require('joi');
 const _ = require('lodash');
 const translationProviders = require('./translationProviders');
+var pino = require('pino')();
 
 var translationProvider;
 var apiKey;
@@ -47,6 +48,7 @@ Localize.prototype.translate = function translate(schema, object, targetLanguage
       });
 
     } else {
+      pino.error(err);
       return next(err, { translatedObject: object, strippedObject: null });
     }
 
@@ -200,6 +202,7 @@ function translateObject(obj, translator, apiKey, targetLanguage, next) {
                 } else {
                   obj[k].value = obj[k].value;
                   errors.push(err);
+                  pino.error(err);
                 }
 
                 resolve();
@@ -215,6 +218,7 @@ function translateObject(obj, translator, apiKey, targetLanguage, next) {
                 } else {
                   obj[k].value = obj[k].value;
                   errors.push(err);
+                  pino.error(err);
                 }
 
                 resolve();
